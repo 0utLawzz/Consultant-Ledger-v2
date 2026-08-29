@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 5371,
+      "bodyTextHash": "aca628501657f2338f6f8835fef97d9659a2b479b36a51cb5d9fecb5ca581526",
+      "bodyTextPrefix": "Brandex CONSULTANT LEDGER Ledgers Search New BRANDEX.PK · ISLAMA",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 4327,
+      "bodyTextHash": "2fd81b9cd2ed678f9ada72935c8063533f642b693419939d16c980ea6b6e5589",
+      "bodyTextPrefix": "Brandex CONSULTANT LEDGER BRANDEX.PK · ISLAMABAD Consultant ledg",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
