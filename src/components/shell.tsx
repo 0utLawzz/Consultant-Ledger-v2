@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Plus, Search } from "lucide-react";
+import { BookOpen, Plus, Search, BarChart3 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/", label: "Ledgers", icon: BookOpen },
   { to: "/search", label: "Search", icon: Search },
+  { to: "/reports", label: "Reports", icon: BarChart3 },
 ] as const;
 
 export function Shell({
@@ -59,7 +60,7 @@ export function Shell({
       <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-24 sm:pb-10">{children}</main>
 
       <nav className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-rule bg-paper/95 backdrop-blur-sm sm:hidden">
-        <div className="grid grid-cols-3 px-2 py-1.5">
+        <div className={cn("grid px-2 py-1.5", onNew ? "grid-cols-4" : "grid-cols-3")}>
           {nav.map((item) => {
             const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             return (
@@ -85,9 +86,7 @@ export function Shell({
               <Plus className="size-5" />
               New
             </button>
-          ) : (
-            <span />
-          )}
+          ) : null}
         </div>
       </nav>
     </div>

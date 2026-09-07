@@ -1,18 +1,21 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Plus, RotateCcw, Search } from "lucide-react";
+import { Download, Plus, RotateCcw, Search } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConsultantDialog } from "@/components/consultant-dialog";
 import { StatusBadge } from "@/components/status-badge";
 import { useLedger } from "@/lib/store";
-import { matchesQuery, outstanding, statusOf, totals } from "@/lib/ledger";
+import { bookKpis, matchesQuery, outstanding, statusOf, totals } from "@/lib/ledger";
+import { downloadText, indexCsv } from "@/lib/export";
 import { formatPkr, formatPkrCompact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Consultant } from "@/lib/types";
 
 export const Route = createFileRoute("/")({ component: Home });
+
+type SortKey = "id" | "name" | "entries" | "due" | "received" | "balance";
 
 function Home() {
   const navigate = useNavigate();
@@ -25,27 +28,43 @@ function Home() {
   const addConsultant = useLedger((s) => s.addConsultant);
   const resetBook = useLedger((s) => s.resetBook);
   const [open, setOpen] = useState(false);
+  const [sort, setSort] = useState<SortKey>("id");
+  const [dir, setDir] = useState<"asc" | "desc">("asc");
 
   const rows = useMemo(() => {
-    return consultants
-      .map((c) => ({ c, bal: outstanding(c), n: c.entries.length }))
+    const list = consultants
+      .map((c) => {
+        const t = totals(c.entries);
+        return { c, bal: outstanding(c), n: c.entries.length, due: t.due, received: t.received };
+      })
       .filter(({ c, bal }) => {
         if (!matchesQuery(c, query)) return false;
         const st = statusOf(bal);
         if (filter === "all") return true;
         return st === filter;
       });
-  }, [consultants, filter, query]);
 
-  const kpis = useMemo(() => {
-    const all = consultants.map((c) => outstanding(c));
-    const due = all.filter((n) => n > 0).reduce((a, b) => a + b, 0);
-    const credit = all.filter((n) => n < 0).reduce((a, b) => a + b, 0);
-    const openN = all.filter((n) => n > 0).length;
-    const settled = all.filter((n) => n === 0).length;
-    const filings = consultants.reduce((a, c) => a + c.entries.length, 0);
-    return { due, credit, openN, settled, filings, n: consultants.length };
-  }, [consultants]);
+    const mul = dir === "asc" ? 1 : -1;
+    list.sort((a, b) => {
+      switch (sort) {
+        case "name":
+          return mul * a.c.name.localeCompare(b.c.name);
+        case "entries":
+          return mul * (a.n - b.n);
+        case "due":
+          return mul * (a.due - b.due);
+        case "received":
+          return mul * (a.received - b.received);
+        case "balance":
+          return mul * (a.bal - b.bal);
+        default:
+          return mul * a.c.id.localeCompare(b.c.id, undefined, { numeric: true });
+      }
+    });
+    return list;
+  }, [consultants, filter, query, sort, dir]);
+
+  const kpis = useMemo(() => bookKpis(consultants), [consultants]);
 
   const top = useMemo(() => {
     return consultants
@@ -55,6 +74,14 @@ function Home() {
       .slice(0, 8);
   }, [consultants]);
   const maxTop = top[0]?.bal || 1;
+
+  function toggleSort(key: SortKey) {
+    if (sort === key) setDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSort(key);
+      setDir(key === "balance" || key === "due" || key === "received" || key === "entries" ? "desc" : "asc");
+    }
+  }
 
   return (
     <Shell onNew={() => setOpen(true)}>
@@ -96,7 +123,9 @@ function Home() {
           <section className="rounded-xl border border-rule bg-ivory p-4 sm:p-5">
             <div className="mb-3 flex items-baseline justify-between">
               <h2 className="font-display text-lg text-ink">Largest dues</h2>
-              <p className="text-xs text-muted">Book outstanding</p>
+              <Link to="/reports" className="text-xs text-plum hover:underline">
+                Full report
+              </Link>
             </div>
             <ul className="grid gap-2">
               {top.map((row) => (
@@ -150,6 +179,14 @@ function Home() {
                   {f === "outstanding" ? "Due" : f}
                 </button>
               ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadText("brandex-index.csv", indexCsv(consultants))}
+              >
+                <Download className="size-3.5" />
+                CSV
+              </Button>
               <Button size="sm" onClick={() => setOpen(true)} className="ml-1">
                 <Plus className="size-3.5" />
                 Consultant
@@ -161,12 +198,24 @@ function Home() {
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead className="bg-plum text-[11px] font-medium tracking-[0.14em] text-ivory uppercase">
                 <tr>
-                  <th className="px-4 py-2.5">Ledger</th>
-                  <th className="px-4 py-2.5">Name</th>
-                  <th className="px-4 py-2.5 text-right">Entries</th>
-                  <th className="px-4 py-2.5 text-right">Due</th>
-                  <th className="px-4 py-2.5 text-right">Received</th>
-                  <th className="px-4 py-2.5 text-right">Balance</th>
+                  <Th k="id" sort={sort} dir={dir} onClick={toggleSort}>
+                    Ledger
+                  </Th>
+                  <Th k="name" sort={sort} dir={dir} onClick={toggleSort}>
+                    Name
+                  </Th>
+                  <Th k="entries" sort={sort} dir={dir} onClick={toggleSort} className="text-right">
+                    Entries
+                  </Th>
+                  <Th k="due" sort={sort} dir={dir} onClick={toggleSort} className="text-right">
+                    Due
+                  </Th>
+                  <Th k="received" sort={sort} dir={dir} onClick={toggleSort} className="text-right">
+                    Received
+                  </Th>
+                  <Th k="balance" sort={sort} dir={dir} onClick={toggleSort} className="text-right">
+                    Balance
+                  </Th>
                   <th className="px-4 py-2.5">Status</th>
                 </tr>
               </thead>
@@ -248,6 +297,38 @@ function Home() {
         }}
       />
     </Shell>
+  );
+}
+
+function Th({
+  k,
+  sort,
+  dir,
+  onClick,
+  children,
+  className,
+}: {
+  k: SortKey;
+  sort: SortKey;
+  dir: "asc" | "desc";
+  onClick: (k: SortKey) => void;
+  children: string;
+  className?: string;
+}) {
+  const active = sort === k;
+  return (
+    <th className={cn("px-4 py-2.5", className)}>
+      <button
+        type="button"
+        onClick={() => onClick(k)}
+        className="inline-flex items-center gap-1 tracking-[0.14em] uppercase"
+      >
+        {children}
+        <span className={cn("text-[10px]", active ? "text-ivory" : "text-ivory/40")}>
+          {active ? (dir === "asc" ? "↑" : "↓") : "↕"}
+        </span>
+      </button>
+    </th>
   );
 }
 

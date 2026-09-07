@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/ledger/A-001",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 45252,
+      "bodyTextHash": "a5cf1618cf6b09b9de91cff717c8b06fdd59ac5807c49dc5dbe49d02e1eab0d0",
+      "bodyTextPrefix": "Brandex Ledgers Search Reports New All ledgers Edit Print CSV En",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/ledger-smoke.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 45220,
+      "bodyTextHash": "d0aac809bd1cb36a2a8f9c8b9ef35ae4f202de78d0c858cc9c54ac7207cad196",
+      "bodyTextPrefix": "Brandex All ledgers Edit Print CSV Entry Ledger-Balance Sheet OF",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/ledger-smoke-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/ledger-smoke.json"
+}

@@ -2,10 +2,13 @@ import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { v as Link, y as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { a as RotateCcw, i as Search, s as Plus } from "../_libs/lucide-react.mjs";
-import { _ as statusOf, b as useLedger, c as cn, d as formatPkr, f as formatPkrCompact, i as Shell, m as outstanding, o as StatusBadge, p as matchesQuery, t as Input, y as totals } from "./format-CasbLKEP.mjs";
-import { n as ConsultantDialog, t as Button } from "./consultant-dialog-BkaikdJJ.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-BAW40yok.js
+import { a as RotateCcw, i as Search, l as Download, s as Plus } from "../_libs/lucide-react.mjs";
+import { i as cn, r as useLedger } from "./router-XuVBQ_NX.mjs";
+import { c as formatPkrCompact, h as totals, i as bookKpis, l as matchesQuery, p as statusOf, r as StatusBadge, s as formatPkr, t as Shell, u as outstanding } from "./format-CXS34QTE.mjs";
+import { i as indexCsv, r as downloadText, t as Button } from "./export-PK2pbfUR.mjs";
+import { t as Input } from "./input-Cl-R8Dsi.mjs";
+import { t as ConsultantDialog } from "./consultant-dialog-B_wqtFJ3.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-Cy5kC5Ud.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function Home() {
@@ -19,33 +22,44 @@ function Home() {
 	const addConsultant = useLedger((s) => s.addConsultant);
 	const resetBook = useLedger((s) => s.resetBook);
 	const [open, setOpen] = (0, import_react.useState)(false);
+	const [sort, setSort] = (0, import_react.useState)("id");
+	const [dir, setDir] = (0, import_react.useState)("asc");
 	const rows = (0, import_react.useMemo)(() => {
-		return consultants.map((c) => ({
-			c,
-			bal: outstanding(c),
-			n: c.entries.length
-		})).filter(({ c, bal }) => {
+		const list = consultants.map((c) => {
+			const t = totals(c.entries);
+			return {
+				c,
+				bal: outstanding(c),
+				n: c.entries.length,
+				due: t.due,
+				received: t.received
+			};
+		}).filter(({ c, bal }) => {
 			if (!matchesQuery(c, query)) return false;
 			const st = statusOf(bal);
 			if (filter === "all") return true;
 			return st === filter;
 		});
+		const mul = dir === "asc" ? 1 : -1;
+		list.sort((a, b) => {
+			switch (sort) {
+				case "name": return mul * a.c.name.localeCompare(b.c.name);
+				case "entries": return mul * (a.n - b.n);
+				case "due": return mul * (a.due - b.due);
+				case "received": return mul * (a.received - b.received);
+				case "balance": return mul * (a.bal - b.bal);
+				default: return mul * a.c.id.localeCompare(b.c.id, void 0, { numeric: true });
+			}
+		});
+		return list;
 	}, [
 		consultants,
 		filter,
-		query
+		query,
+		sort,
+		dir
 	]);
-	const kpis = (0, import_react.useMemo)(() => {
-		const all = consultants.map((c) => outstanding(c));
-		return {
-			due: all.filter((n) => n > 0).reduce((a, b) => a + b, 0),
-			credit: all.filter((n) => n < 0).reduce((a, b) => a + b, 0),
-			openN: all.filter((n) => n > 0).length,
-			settled: all.filter((n) => n === 0).length,
-			filings: consultants.reduce((a, c) => a + c.entries.length, 0),
-			n: consultants.length
-		};
-	}, [consultants]);
+	const kpis = (0, import_react.useMemo)(() => bookKpis(consultants), [consultants]);
 	const top = (0, import_react.useMemo)(() => {
 		return consultants.map((c) => ({
 			id: c.id,
@@ -54,6 +68,13 @@ function Home() {
 		})).filter((x) => x.bal > 0).sort((a, b) => b.bal - a.bal).slice(0, 8);
 	}, [consultants]);
 	const maxTop = top[0]?.bal || 1;
+	function toggleSort(key) {
+		if (sort === key) setDir((d) => d === "asc" ? "desc" : "asc");
+		else {
+			setSort(key);
+			setDir(key === "balance" || key === "due" || key === "received" || key === "entries" ? "desc" : "asc");
+		}
+	}
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Shell, {
 		onNew: () => setOpen(true),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -128,9 +149,10 @@ function Home() {
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 							className: "font-display text-lg text-ink",
 							children: "Largest dues"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "text-xs text-muted",
-							children: "Book outstanding"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							to: "/reports",
+							className: "text-xs text-plum hover:underline",
+							children: "Full report"
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 						className: "grid gap-2",
@@ -180,22 +202,31 @@ function Home() {
 								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "flex flex-wrap items-center gap-1.5",
-								children: [[
-									"all",
-									"outstanding",
-									"settled",
-									"credit"
-								].map((f) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									type: "button",
-									onClick: () => setFilter(f),
-									className: cn("h-8 rounded-full px-3 text-xs font-medium capitalize", filter === f ? "bg-plum text-ivory" : "bg-paper-2 text-ink-soft hover:text-ink"),
-									children: f === "outstanding" ? "Due" : f
-								}, f)), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-									size: "sm",
-									onClick: () => setOpen(true),
-									className: "ml-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "size-3.5" }), "Consultant"]
-								})]
+								children: [
+									[
+										"all",
+										"outstanding",
+										"settled",
+										"credit"
+									].map((f) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => setFilter(f),
+										className: cn("h-8 rounded-full px-3 text-xs font-medium capitalize", filter === f ? "bg-plum text-ivory" : "bg-paper-2 text-ink-soft hover:text-ink"),
+										children: f === "outstanding" ? "Due" : f
+									}, f)),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+										variant: "outline",
+										size: "sm",
+										onClick: () => downloadText("brandex-index.csv", indexCsv(consultants)),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { className: "size-3.5" }), "CSV"]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+										size: "sm",
+										onClick: () => setOpen(true),
+										className: "ml-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "size-3.5" }), "Consultant"]
+									})
+								]
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -205,28 +236,50 @@ function Home() {
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", {
 									className: "bg-plum text-[11px] font-medium tracking-[0.14em] text-ivory uppercase",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "id",
+											sort,
+											dir,
+											onClick: toggleSort,
 											children: "Ledger"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "name",
+											sort,
+											dir,
+											onClick: toggleSort,
 											children: "Name"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5 text-right",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "entries",
+											sort,
+											dir,
+											onClick: toggleSort,
+											className: "text-right",
 											children: "Entries"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5 text-right",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "due",
+											sort,
+											dir,
+											onClick: toggleSort,
+											className: "text-right",
 											children: "Due"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5 text-right",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "received",
+											sort,
+											dir,
+											onClick: toggleSort,
+											className: "text-right",
 											children: "Received"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-4 py-2.5 text-right",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Th, {
+											k: "balance",
+											sort,
+											dir,
+											onClick: toggleSort,
+											className: "text-right",
 											children: "Balance"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
@@ -312,6 +365,21 @@ function Home() {
 				});
 			}
 		})]
+	});
+}
+function Th({ k, sort, dir, onClick, children, className }) {
+	const active = sort === k;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+		className: cn("px-4 py-2.5", className),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+			type: "button",
+			onClick: () => onClick(k),
+			className: "inline-flex items-center gap-1 tracking-[0.14em] uppercase",
+			children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+				className: cn("text-[10px]", active ? "text-ivory" : "text-ivory/40"),
+				children: active ? dir === "asc" ? "↑" : "↓" : "↕"
+			})]
+		})
 	});
 }
 function Kpi({ label, value }) {

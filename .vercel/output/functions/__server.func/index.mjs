@@ -15,7 +15,8 @@ var grokOgIdentity = { "site": {
 	"title": "Brandex Ledger",
 	"card": "custom",
 	"color": "4A2C6A",
-	"image": "/og.jpg"
+	"image": "/og.jpg",
+	"banner": "/x-banner.jpg"
 } };
 //#endregion
 //#region scripts/grok-pwa-shared.mjs

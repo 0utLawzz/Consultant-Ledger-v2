@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Pencil, Plus, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Pencil, Plus, Printer, Trash2 } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { EntryDialog } from "@/components/entry-dialog";
@@ -9,6 +9,7 @@ import { StageChip, StatusBadge } from "@/components/status-badge";
 import { useLedger } from "@/lib/store";
 import { computedBalance, outstanding, totals, withRunning } from "@/lib/ledger";
 import { formatDate, formatPkr } from "@/lib/format";
+import { downloadText, ledgerCsv } from "@/lib/export";
 import { cn } from "@/lib/utils";
 import type { LedgerEntry } from "@/lib/types";
 
@@ -81,6 +82,16 @@ function LedgerPage() {
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="size-3.5" />
               Print
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                downloadText(`${consultant.id.toLowerCase()}-ledger.csv`, ledgerCsv(consultant))
+              }
+            >
+              <Download className="size-3.5" />
+              CSV
             </Button>
             <Button size="sm" onClick={openNew}>
               <Plus className="size-3.5" />

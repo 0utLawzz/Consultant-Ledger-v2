@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/reports",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 1910,
+      "bodyTextHash": "cf85f362deb848365dcfdd4708a5ab976dcb7e177fc7345545b9d5757a35d7be",
+      "bodyTextPrefix": "Brandex Ledgers Search Reports Reports Book outstanding for Bran",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/reports-smoke.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Brandex Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 1910,
+      "bodyTextHash": "92464be621620ba18c215bc0987caca35a45f9966c15fdc45f45c0eb586317ff",
+      "bodyTextPrefix": "Brandex Reports Book outstanding for Brandex — 70 consultants, 3",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/reports-smoke-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/reports-smoke.json"
+}

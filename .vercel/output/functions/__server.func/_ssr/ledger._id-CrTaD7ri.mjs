@@ -2,11 +2,13 @@ import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { v as Link, y as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { c as Pencil, o as Printer, r as Trash2, s as Plus, u as ArrowLeft } from "../_libs/lucide-react.mjs";
-import { n as Route } from "./router-BjNIvJGZ.mjs";
-import { a as StageChip, b as useLedger, c as cn, d as formatPkr, h as parseAmount, i as Shell, l as computedBalance, m as outstanding, n as Label, o as StatusBadge, r as NativeSelect, s as Textarea, t as Input, u as formatDate, v as todayIso, x as withRunning, y as totals } from "./format-CasbLKEP.mjs";
-import { i as DialogContent, n as ConsultantDialog, r as Dialog, t as Button } from "./consultant-dialog-BkaikdJJ.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/ledger._id-BsxNoHKN.js
+import { c as Pencil, f as ArrowLeft, l as Download, o as Printer, r as Trash2, s as Plus } from "../_libs/lucide-react.mjs";
+import { i as cn, n as Route, r as useLedger } from "./router-XuVBQ_NX.mjs";
+import { a as computedBalance, d as parseAmount, g as withRunning, h as totals, m as todayIso, n as StageChip, o as formatDate, r as StatusBadge, s as formatPkr, t as Shell, u as outstanding } from "./format-CXS34QTE.mjs";
+import { a as ledgerCsv, r as downloadText, t as Button } from "./export-PK2pbfUR.mjs";
+import { i as Textarea, n as Label, r as NativeSelect, t as Input } from "./input-Cl-R8Dsi.mjs";
+import { n as Dialog, r as DialogContent, t as ConsultantDialog } from "./consultant-dialog-B_wqtFJ3.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/ledger._id-CrTaD7ri.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var empty = () => ({
@@ -295,6 +297,12 @@ function LedgerPage() {
 									size: "sm",
 									onClick: () => window.print(),
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { className: "size-3.5" }), "Print"]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+									variant: "outline",
+									size: "sm",
+									onClick: () => downloadText(`${consultant.id.toLowerCase()}-ledger.csv`, ledgerCsv(consultant)),
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { className: "size-3.5" }), "CSV"]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 									size: "sm",

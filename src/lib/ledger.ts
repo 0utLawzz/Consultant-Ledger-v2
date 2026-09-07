@@ -66,3 +66,53 @@ export function searchEntries(consultants: Consultant[], q: string): SearchHit[]
   }
   return hits;
 }
+
+export type YearBucket = {
+  year: string;
+  due: number;
+  received: number;
+  n: number;
+};
+
+export function yearBuckets(consultants: Consultant[]): YearBucket[] {
+  const map = new Map<string, YearBucket>();
+  for (const c of consultants) {
+    for (const e of c.entries) {
+      const year = e.date ? e.date.slice(0, 4) : "Undated";
+      const cur = map.get(year) ?? { year, due: 0, received: 0, n: 0 };
+      cur.due += e.due || 0;
+      cur.received += e.received || 0;
+      cur.n += 1;
+      map.set(year, cur);
+    }
+  }
+  return [...map.values()].sort((a, b) => a.year.localeCompare(b.year));
+}
+
+export function bookKpis(consultants: Consultant[]) {
+  const bals = consultants.map((c) => outstanding(c));
+  const due = bals.filter((n) => n > 0).reduce((a, b) => a + b, 0);
+  const credit = bals.filter((n) => n < 0).reduce((a, b) => a + b, 0);
+  const openN = bals.filter((n) => n > 0).length;
+  const settled = bals.filter((n) => n === 0).length;
+  const creditN = bals.filter((n) => n < 0).length;
+  const filings = consultants.reduce((a, c) => a + c.entries.length, 0);
+  let billed = 0;
+  let received = 0;
+  for (const c of consultants) {
+    const t = totals(c.entries);
+    billed += t.due;
+    received += t.received;
+  }
+  return {
+    due,
+    credit,
+    openN,
+    settled,
+    creditN,
+    filings,
+    n: consultants.length,
+    billed,
+    received,
+  };
+}
